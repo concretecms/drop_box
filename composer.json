@@ -1,0 +1,12 @@
+{
+  "name": "concrete5/drop_box",
+  "description": "concrete5 package to enable big file uploads.",
+  "type": "concrete5-package",
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Concrete5\\Dropbox\\": "src"
+    }
+  }
+}

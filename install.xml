@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<concrete5-cif version="1.0">
+    <blocktypes>
+        <blocktype handle="drop_box" package="drop_box"/>
+    </blocktypes>
+    <singlepages>
+        <page name="Drop Box Settings" path="/dashboard/system/files/drop_box_settings" filename="/dashboard/system/files/drop_box_settings/view.php"
+              package="drop_box"/>
+        <page name="Drop Box" path="/dashboard/files/drop_box" filename="/dashboard/files/drop_box/view.php" package="drop_box" />
+    </singlepages>
+    <permissionkeys>
+        <permissionkey handle="create_uploaded_file_entries" name="Create Uploaded File Entries" description="" package="drop_box" category="admin">
+            <access>
+                <group name="Administrators" description=""/>
+            </access>
+        </permissionkey>
+        <permissionkey handle="read_uploaded_file_entries" name="Read Uploaded File Entries" description="" package="drop_box" category="admin">
+        </permissionkey>
+        <permissionkey handle="update_uploaded_file_entries" name="Update Uploaded File Entries" description="" package="drop_box" category="admin">
+            <access>
+                <group name="Administrators" description=""/>
+            </access>
+        </permissionkey>
+        <permissionkey handle="delete_uploaded_file_entries" name="Delete Uploaded File Entries" description="" package="drop_box" category="admin">
+            <access>
+                <group name="Administrators" description=""/>
+            </access>
+        </permissionkey>
+    </permissionkeys>
+</concrete5-cif>

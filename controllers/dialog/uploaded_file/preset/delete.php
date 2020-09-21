@@ -2,8 +2,8 @@
 
 namespace Concrete\Package\DropBox\Controller\Dialog\UploadedFile\Preset;
 
+use Concrete\Core\Legacy\FilePermissions;
 use Concrete5\DropBox\Entity\Search\SavedUploadedFileSearch;
-use Concrete\Core\Permission\Key\Key;
 use Concrete\Controller\Dialog\Search\Preset\Delete as PresetDelete;
 use Doctrine\ORM\EntityManager;
 
@@ -11,8 +11,12 @@ class Delete extends PresetDelete
 {
     protected function canAccess()
     {
-        $permissionKey = Key::getByHandle("read_uploaded_file_entries");
-        return $permissionKey->validate();
+        $cp = FilePermissions::getGlobal();
+        if ($cp->canSearchFiles()) {
+            return true;
+        }
+
+        return false;
     }
     
     public function on_before_render()

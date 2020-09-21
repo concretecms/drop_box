@@ -98,7 +98,7 @@ $dateTime = $app->make(DateTime::class);
         
         <?php echo $userSelector->selectUser(
             "owner",
-            $entry->getOwner()
+            $entry->getOwner() instanceof \Concrete\Core\Entity\User\User ? $entry->getOwner()->getUserID() : null
         ); ?>
     </div>
     

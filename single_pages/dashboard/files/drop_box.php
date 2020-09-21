@@ -26,7 +26,7 @@ use Concrete\Core\Support\Facade\Url;
 <?php else: ?>
     <script type="text/template" data-template="search-results-table-body">
         <% _.each(items, function (item) {%>
-        <tr data-launch-search-menu="<%=item.id%>">
+        <tr data-launch-search-menu="<%=item.primaryIdentifier%>_<%=item.fileIdentifier%>">
         <td class="ccm-search-results-icon">
         <%=item.resultsThumbnailImg%>
         </td>
@@ -58,7 +58,7 @@ use Concrete\Core\Support\Facade\Url;
         <%=paginationTemplate%>
     </script>
     <script type="text/template" data-template="search-results-menu">
-        <div class="popover fade" data-search-menu="<%=item.id%>">
+        <div class="popover fade" data-search-menu="<%=item.primaryIdentifier%>_<%=item.fileIdentifier%>">
             <div class="arrow"></div>
             <div class="popover-inner">
                 <ul class="dropdown-menu">

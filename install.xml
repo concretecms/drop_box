@@ -8,20 +8,11 @@
               package="drop_box"/>
         <page name="Drop Box" path="/dashboard/files/drop_box" filename="/dashboard/files/drop_box/view.php" package="drop_box" />
     </singlepages>
+    <jobs>
+        <job handle="remove_expired_files" package="drop_box"/>
+    </jobs>
     <permissionkeys>
-        <permissionkey handle="create_uploaded_file_entries" name="Create Uploaded File Entries" description="" package="drop_box" category="admin">
-            <access>
-                <group name="Administrators" description=""/>
-            </access>
-        </permissionkey>
-        <permissionkey handle="read_uploaded_file_entries" name="Read Uploaded File Entries" description="" package="drop_box" category="admin">
-        </permissionkey>
-        <permissionkey handle="update_uploaded_file_entries" name="Update Uploaded File Entries" description="" package="drop_box" category="admin">
-            <access>
-                <group name="Administrators" description=""/>
-            </access>
-        </permissionkey>
-        <permissionkey handle="delete_uploaded_file_entries" name="Delete Uploaded File Entries" description="" package="drop_box" category="admin">
+        <permissionkey handle="upload_file_to_drop_box" name="Upload File to Drop Box" description="" package="drop_box" category="file_folder">
             <access>
                 <group name="Administrators" description=""/>
             </access>

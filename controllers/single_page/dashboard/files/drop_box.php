@@ -3,12 +3,12 @@
 namespace Concrete\Package\DropBox\Controller\SinglePage\Dashboard\Files;
 
 use Concrete\Core\Entity\User\User;
-use Concrete\Core\Form\Service\Validation;
 use Concrete\Core\Form\Service\Widget\DateTime;
 use Concrete\Core\Page\Controller\DashboardPageController;
 use Concrete\Core\Http\ResponseFactory;
 use Concrete\Core\Http\Request;
 use Concrete\Core\Support\Facade\Url;
+use Concrete5\DropBox\Form\Service\Validation;
 use Symfony\Component\HttpFoundation\Response;
 use Concrete\Core\Legacy\Pagination;
 use Concrete\Core\File\File;
@@ -90,12 +90,10 @@ class DropBox extends DashboardPageController
         /** @var Validation $validator */
         $validator = $this->app->make(Validation::class);
         $validator->setData($data);
-        $validator->addRequired("primaryIdentifier", t("You need to enter a primary identifier."));
-        $validator->addRequired("fileIdentifier", t("You need to enter a file identifier."));
-        $validator->addUploadedFile("file", t("You need to select a valid file."));
-
-        // @todo: check if the primary id + file id is not already in use
-        // @todo: implement createdAt + owner
+        $validator->addRequiredGuid("primaryIdentifier", t("You need to enter a primary identifier."));
+        $validator->addRequiredGuid("fileIdentifier", t("You need to enter a file identifier."));
+        $validator->addRequiredFile("file", t("You need to select a valid file."));
+        $validator->addRequiredDateTime("created_at", t("You need to enter a valid date."));
 
         if ($validator->test()) {
             return true;
@@ -122,11 +120,12 @@ class DropBox extends DashboardPageController
     /**
      * @noinspection PhpInconsistentReturnPointsInspection
      */
-    public function edit($id = null)
+    public function edit($primaryIdentifier = null, $fileIdentifier = null)
     {
         /** @var UploadedFileEntity $entry */
         $entry = $this->entityManager->getRepository(UploadedFileEntity::class)->findOneBy([
-            "id" => $id
+            "primaryIdentifier" => $primaryIdentifier,
+            "fileIdentifier" => $fileIdentifier
         ]);
 
         if ($entry instanceof UploadedFileEntity) {
@@ -144,11 +143,12 @@ class DropBox extends DashboardPageController
     /**
      * @noinspection PhpInconsistentReturnPointsInspection
      */
-    public function remove($id = null)
+    public function remove($primaryIdentifier = null, $fileIdentifier = null)
     {
         /** @var UploadedFileEntity $entry */
         $entry = $this->entityManager->getRepository(UploadedFileEntity::class)->findOneBy([
-            "id" => $id
+            "primaryIdentifier" => $primaryIdentifier,
+            "fileIdentifier" => $fileIdentifier
         ]);
 
         if ($entry instanceof UploadedFileEntity) {

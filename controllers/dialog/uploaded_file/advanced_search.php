@@ -3,9 +3,9 @@
 namespace Concrete\Package\DropBox\Controller\Dialog\UploadedFile;
 
 use Concrete\Controller\Dialog\Search\AdvancedSearch as AdvancedSearchController;
+use Concrete\Core\Legacy\FilePermissions;
 use Concrete\Core\Support\Facade\Url;
 use Concrete\Core\Search\Field\ManagerFactory;
-use Concrete\Core\Permission\Key\Key;
 use Concrete\Core\Entity\Search\SavedSearch;
 use Doctrine\ORM\EntityManager;
 use Concrete5\DropBox\Entity\Search\SavedUploadedFileSearch;
@@ -17,8 +17,12 @@ class AdvancedSearch extends AdvancedSearchController
     
     protected function canAccess()
     {
-        $permissionKey = Key::getByHandle("read_uploaded_file_entries");
-        return $permissionKey->validate();
+        $cp = FilePermissions::getGlobal();
+        if ($cp->canSearchFiles()) {
+            return true;
+        }
+
+        return false;
     }
     
     public function on_before_render()

@@ -11,7 +11,7 @@ class Controller extends Package
     protected $pkgVersion = '0.1.2';
     protected $pkgHandle = 'drop_box';
     protected $pkgDescription = '';
-    protected $pkgAutoloaderRegistries = ['src' => 'Concrete5\\DropBox'];
+    protected $pkgAutoloaderRegistries = ['src' => 'Concrete5\DropBox'];
 
     public function getPackageName()
     {

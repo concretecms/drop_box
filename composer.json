@@ -8,5 +8,20 @@
     "psr-4": {
       "Concrete5\\Dropbox\\": "src"
     }
+  },
+  "replace": {
+    "symfony/console": "*",
+    "symfony/event-dispatcher": "*",
+    "symfony/http-foundation": "*",
+    "guzzlehttp/guzzle": "*",
+    "guzzlehttp/psr7": "*",
+    "guzzlehttp/promises": "*"
+  },
+  "require": {
+    "ankitpokhrel/tus-php": "^1.2",
+    "aws/aws-sdk-php": "^3.155"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "2.1.3"
   }
 }

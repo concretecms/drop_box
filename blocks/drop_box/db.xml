@@ -6,6 +6,8 @@
             <unsigned/>
             <key/>
         </field>
+
+        <!-- Blocks need a field, even if it isn't used -->
         <field name="dummy" type="boolean"/>
     </table>
 </schema>

@@ -37,7 +37,12 @@ class Controller extends Package
 
     public function on_start()
     {
-        $entityDesignerServiceProvider = $this->app->make(ServiceProvider::class);
-        $entityDesignerServiceProvider->register();
+        if (file_exists($this->getPackagePath() . "/vendor")) {
+            require_once  $this->getPackagePath() . "/vendor/autoload.php";
+        }
+
+        /** @var ServiceProvider $serviceProvider */
+        $serviceProvider = $this->app->make(ServiceProvider::class);
+        $serviceProvider->register();
     }
 }

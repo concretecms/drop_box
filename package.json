@@ -1,0 +1,48 @@
+{
+  "name": "drop_box",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npm run development",
+    "development": "./node_modules/.bin/cross-env NODE_ENV=development && node_modules/.bin/webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "npm run development -- --watch",
+    "hot": "./node_modules/.bin/cross-env NODE_ENV=development && node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "prod": "npm run production",
+    "production": "./node_modules/.bin/cross-env NODE_ENV=production && node_modules/.bin/webpack --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "postinstall": "./node_modules/.bin/cross-env NODE_ENV=production && ./node_modules/.bin/webpack --config=node_modules/laravel-mix/setup/webpack.config.js && ./node_modules/getcomposer/composer.phar install --no-dev",
+    "deploy": "./node_modules/grunt-cli/bin/grunt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/concrete5/drop_box.git"
+  },
+  "keywords": [],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/concrete5/drop_box/issues"
+  },
+  "homepage": "https://github.com/concrete5/drop_box#readme",
+  "devDependencies": {
+    "@uppy/core": "^1.13.2",
+    "@uppy/dashboard": "^1.12.7",
+    "@uppy/drag-drop": "^1.4.19",
+    "@uppy/tus": "^1.7.6",
+    "laravel-mix": "^5.0.5",
+    "resolve-url-loader": "^3.1.0",
+    "sass": "^1.26.11",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.12",
+    "abbrev": "^1.1.1",
+    "getcomposer": "^1.3.3",
+    "grunt": "~0.4.5",
+    "grunt-cli": "^1.2.0",
+    "grunt-composer": "^0.4.5",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-compress": "^1.3.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-php-cs-fixer": "^1.0.0",
+    "grunt-po2mo": "^0.1.2",
+    "grunt-version": "^1.2.1",
+    "shared-git-hooks": "^1.2.1",
+    "cross-env": "^7.0.2"
+  }
+}

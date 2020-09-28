@@ -1,107 +1,52 @@
 <?php
 
-/**
- *
- * This file was build with the Entity Designer add-on.
- *
- * https://www.concrete5.org/marketplace/addons/entity-designer
- *
- */
-
 defined('C5_EXECUTE') or die('Access denied');
-
-/** @noinspection DuplicatedCode */
-
-use Concrete5\DropBox\Search\UploadedFile\Result\Result;
-use Concrete\Core\Support\Facade\Url;
-
-/** @var Result|null $result */
 
 ?>
 
-<?php if (!is_object($result)): ?>
-    <div class="alert alert-warning">
-        <?php echo t('Currently there are no items available.'); ?>
-    </div>
-<?php else: ?>
-    <script type="text/template" data-template="search-results-table-body">
-        <% _.each(items, function (item) {%>
-        <tr data-launch-search-menu="<%=item.primaryIdentifier%>_<%=item.fileIdentifier%>">
-        <td class="ccm-search-results-icon">
-        <%=item.resultsThumbnailImg%>
-        </td>
-        <% for (i = 0; i < item.columns.length; i++) {
-        var column = item.columns[i]; %>
-        <% if (i == 0) { %>
-        <td class="ccm-search-results-name"><%-column.value%></td>
-        <% } else { %>
-        <td><%-column.value%></td>
-        <% } %>
-        <% } %>
-        </tr>
-        <% }); %>
-    </script>
-    
-    <div data-search-element="wrapper"></div>
-    
-    <div data-search-element="results">
-        <div class="table-responsive">
-            <table class="ccm-search-results-table ccm-search-results-table-icon">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div class="ccm-search-results-pagination"></div>
-    </div>
-    
-    <script type="text/template" data-template="search-results-pagination">
-        <%=paginationTemplate%>
-    </script>
-    <script type="text/template" data-template="search-results-menu">
-        <div class="popover fade" data-search-menu="<%=item.primaryIdentifier%>_<%=item.fileIdentifier%>">
-            <div class="arrow"></div>
-            <div class="popover-inner">
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="<?php echo Url::to("/dashboard/files/drop_box/edit"); ?>/<%=item.primaryIdentifier%>/<%=item.fileIdentifier%>">
-                            <?php echo t("Edit"); ?>
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="<?php echo Url::to("/dashboard/files/drop_box/remove"); ?>/<%=item.primaryIdentifier%>/<%=item.fileIdentifier%>">
-                            <?php echo t("Remove"); ?>
-                            </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </script>
-    
-    
-    <script type="text/template" data-template="search-results-table-head">
+<div id="ccm-search-results-table">
+    <table class="ccm-search-results-table" data-search-results="pages">
+        <thead>
         <tr>
-        <th>
-        <div class="dropdown">
-        <button class="btn btn-menu-launcher" disabled data-toggle="dropdown"><i
-        class="fa fa-chevron-down"></i></button>
-        </div>
-        </th>
-        <%
-        for (i = 0; i < columns.length; i++) {
-        var column = columns[i];
-        if (column.isColumnSortable) { %>
-        <th class="<%=column.className%>"><a href="<%=column.sortURL%>"><%-column.title%></a></th>
-        <% } else { %>
-        <th><span><%-column.title%></span></th>
-        <% } %>
-        <% } %>
+            <th><div style="width: 41px"></div></th>
+            <th><?=t('File')?></th>
+            <th class="ccm-results-list-active-sort-desc"><a href="#"><?=t('Date Added')?></a></th>
+            <th><?=t('Size')?></th>
+            <th><?=t('Uploaded By')?></th>
         </tr>
-    </script>
-    
-    <script type="text/javascript">
-        $(function () {
-            $('#ccm-dashboard-content').concreteAjaxSearch(<?php echo json_encode(["result" => $result->getJSONObject()]) ?>);
-        });
-    </script>
-<?php endif; ?>
+        </thead>
+
+        <tbody>
+        <?php
+        /**
+         * @var $uploadedFiles \Concrete5\DropBox\Entity\UploadedFile[]
+         */
+        foreach($uploadedFiles as $entry) {
+            $file = $entry->getFile();
+            $uploader = $entry->getOwner(); ?>
+           <tr data-details-url="javascript:void(0)">
+               <td class="ccm-search-results-icon">
+                   <?php echo $file->getListingThumbnailImage() ?>
+               </td>
+               <td class="ccm-search-results-name"><?=$file->getFileName()?></td>
+               <td><?=$entry->getCreatedAt()->format('F d Y, g:i a')?></td>
+               <td><?=$file->getSize()?></td>
+               <td><?=$uploader->getUserName()?></td>
+               <td class="ccm-search-results-menu-launcher">
+                   <div class="dropdown" data-menu="search-result">
+
+                       <button class="btn btn-icon" data-boundary="viewport" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                           <svg width="16" height="4">
+                               <use xlink:href="#icon-menu-launcher"></use>
+                           </svg>
+                       </button>
+
+                       <div class="dropdown-menu"><a class="dropdown-item" href="#" data-tree-action="edit-node" dialog-title="Edit Folder" data-tree-action-url="http://brandcentral.test/index.php/ccm/system/dialogs/tree/node/edit/file_folder?treeNodeID=20">Download File</a><div class="dropdown-divider"></div><a class="dropdown-item" href="#" data-tree-action="delete-node" dialog-title="Delete Folder" data-tree-action-url="http://brandcentral.test/index.php/ccm/system/dialogs/tree/node/delete?treeNodeID=20">Delete</a></div>                                </div>
+               </td>           </tr>
+
+        <?php } ?>
+
+        </tbody>
+    </table>
+</div>

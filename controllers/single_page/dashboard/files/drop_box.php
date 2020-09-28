@@ -164,13 +164,10 @@ class DropBox extends DashboardPageController
 
     public function view()
     {
-        $headerMenu = new HeaderController();
-        $this->set('headerMenu', $headerMenu);
-        /** @var \Concrete\Package\DropBox\Controller\Search\UploadedFile $searchProvider */
-        $searchProvider = $this->app->make(\Concrete\Package\DropBox\Controller\Search\UploadedFile::class);
-        $result = $searchProvider->getCurrentSearchObject();
-        if (is_object($result)) {
-            $this->set('result', $result);
-        }
+        $uploadedFiles = $this->entityManager->getRepository(UploadedFileEntity::class)
+            ->findBy([],  ['createdAt' => 'desc']);
+
+        $this->set('uploadedFiles', $uploadedFiles);
+        $this->setThemeViewTemplate('full.php');
     }
 }

@@ -26,6 +26,8 @@ use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use TusPhp\Events\TusEvent;
 use TusPhp\Tus\Server;
 use DateTime;
@@ -183,7 +185,14 @@ class DropBox extends AbstractController
                 $approvedVersion = $file->getApprovedVersion();
 
                 if ($approvedVersion instanceof Version) {
-                    return $this->responseFactory->redirect($approvedVersion->getDownloadURL(), Response::HTTP_TEMPORARY_REDIRECT);
+                    return new StreamedResponse(function() use ($approvedVersion) {
+                        $outputStream = fopen('php://output', 'wb');
+                        $fileStream = $approvedVersion->getFileResource();
+                        stream_copy_to_stream($fileStream->readStream(), $outputStream);
+                    }, Response::HTTP_OK, [
+                        "Content-Type" => $approvedVersion->getMimeType(),
+                        "Content-Disposition" => 'attachment; filename=' . $approvedVersion->getFileName()
+                    ]);
                 }
             }
         }
@@ -212,7 +221,7 @@ class DropBox extends AbstractController
          * on concrete5 installations that are running in subdirectories.
          */
 
-        $this->server->setApiPath("/" . Url::to("/ccm/tus_server/upload")->getPath());
+        $this->server->setApiPath("/" . Url::to("/ccm/drop_box/upload")->getPath());
 
         /*
          * We need to hook into the upload event to import the file into the file manager.

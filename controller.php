@@ -9,8 +9,8 @@ use Concrete\Core\File\StorageLocation\Type\Type;
 
 class Controller extends Package
 {
-    protected $appVersionRequired = '8.2.0';
-    protected $pkgVersion = '0.1.3';
+    protected $appVersionRequired = '8.0.0';
+    protected $pkgVersion = '0.2.0';
     protected $pkgHandle = 'drop_box';
     protected $pkgDescription = '';
     protected $pkgAutoloaderRegistries = ['src' => 'Concrete5\DropBox'];

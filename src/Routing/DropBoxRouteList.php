@@ -11,6 +11,6 @@ class DropBoxRouteList implements RouteListInterface
     {
         $router->buildGroup()->setNamespace('Concrete5\DropBox\Controller')
             ->setPrefix('/ccm/drop_box')
-            ->routes('tus_server.php', 'drop_box');
+            ->routes('drop_box.php', 'drop_box');
     }
 }

@@ -67,6 +67,12 @@ use Concrete\Core\Support\Facade\Url;
                             <?php echo t("Edit"); ?>
                         </a>
                     </li>
+
+                    <li>
+                        <a href="<?php echo Url::to("/ccm/drop_box/download"); ?>/<%=item.primaryIdentifier%>/<%=item.fileIdentifier%>" target="_blank">
+                            <?php echo t("Download"); ?>
+                        </a>
+                    </li>
                     
                     <li>
                         <a href="<?php echo Url::to("/dashboard/files/drop_box/remove"); ?>/<%=item.primaryIdentifier%>/<%=item.fileIdentifier%>">

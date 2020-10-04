@@ -7,7 +7,7 @@ use Concrete\Core\Foundation\Service\Provider;
 use Concrete\Core\Package\Package;
 use Concrete\Core\Package\PackageService;
 use Concrete\Core\Routing\Router;
-use Concrete5\DropBox\Routing\TusRouteList;
+use Concrete5\DropBox\Routing\DropBoxRouteList;
 use Concrete5\DropBox\Routing\UploadedFileRouteList;
 use Concrete5\DropBox\Search\UploadedFile\Field\ManagerServiceProvider;
 
@@ -80,8 +80,8 @@ class ServiceProvider extends Provider
         $uploadedFileRouteList = $this->app->make(UploadedFileRouteList::class);
         $uploadedFileRouteList->loadRoutes($router);
 
-        /** @var TusRouteList $tusRouteList */
-        $tusRouteList = $this->app->make(TusRouteList::class);
+        /** @var DropBoxRouteList $tusRouteList */
+        $tusRouteList = $this->app->make(DropBoxRouteList::class);
         $tusRouteList->loadRoutes($router);
     }
 

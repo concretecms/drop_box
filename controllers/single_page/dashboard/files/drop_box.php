@@ -2,21 +2,45 @@
 
 namespace Concrete\Package\DropBox\Controller\SinglePage\Dashboard\Files;
 
+use Concrete\Core\Entity\Search\Query;
 use Concrete\Core\Entity\User\User;
+use Concrete\Core\Filesystem\Element;
+use Concrete\Core\Filesystem\ElementManager;
 use Concrete\Core\Form\Service\Widget\DateTime;
+use Concrete\Core\Http\Response;
+use Concrete\Core\Logging\Search\Menu\MenuFactory;
 use Concrete\Core\Page\Controller\DashboardPageController;
 use Concrete\Core\Http\ResponseFactory;
 use Concrete\Core\Http\Request;
+use Concrete\Core\Search\Field\Field\KeywordsField;
+use Concrete\Core\Search\Query\Modifier\AutoSortColumnRequestModifier;
+use Concrete\Core\Search\Query\Modifier\ItemsPerPageRequestModifier;
+use Concrete\Core\Search\Query\QueryFactory;
+use Concrete\Core\Search\Query\QueryModifier;
+use Concrete\Core\Search\Result\Result;
+use Concrete\Core\Search\Result\ResultFactory;
 use Concrete\Core\Support\Facade\Url;
+use Concrete\Package\DropBox\Controller\Search\UploadedFile;
+use Concrete5\DropBox\Entity\Search\SavedUploadedFileSearch;
 use Concrete5\DropBox\Form\Service\Validation;
-use Symfony\Component\HttpFoundation\Response;
-use Concrete\Core\Legacy\Pagination;
+use Concrete5\DropBox\Search\UploadedFile\SearchProvider;
 use Concrete\Core\File\File;
 use Concrete5\DropBox\Entity\UploadedFile as UploadedFileEntity;
 use Concrete\Package\DropBox\Controller\Element\Header\UploadedFile as HeaderController;
 
 class DropBox extends DashboardPageController
 {
+
+    /**
+     * @var Element
+     */
+    protected $headerMenu;
+
+    /**
+     * @var Element
+     */
+    protected $headerSearch;
+
     /** @var ResponseFactory */
     protected $responseFactory;
     /** @var Request */
@@ -162,15 +186,135 @@ class DropBox extends DashboardPageController
         }
     }
 
+    /**
+     * @return SearchProvider
+     */
+    protected function getSearchProvider()
+    {
+        return $this->app->make(SearchProvider::class);
+    }
+
+    /**
+     * @return QueryFactory
+     */
+    protected function getQueryFactory()
+    {
+        return $this->app->make(QueryFactory::class);
+    }
+
+    protected function getHeaderMenu()
+    {
+        if (!isset($this->headerMenu)) {
+            $this->headerMenu = $this->app->make(ElementManager::class)->get('dashboard/files/drop_box/search/menu', 'drop_box');
+        }
+
+        return $this->headerMenu;
+    }
+
+    protected function getHeaderSearch()
+    {
+        if (!isset($this->headerSearch)) {
+            $this->headerSearch = $this->app->make(ElementManager::class)->get('dashboard/files/drop_box/search/search', 'drop_box');
+        }
+
+        return $this->headerSearch;
+    }
+
+    /**
+     * @param Result $result
+     */
+    protected function renderSearchResult(Result $result)
+    {
+        $headerMenu = $this->getHeaderMenu();
+        $headerSearch = $this->getHeaderSearch();
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        $headerMenu->getElementController()->setQuery($result->getQuery());
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+        $headerSearch->getElementController()->setQuery($result->getQuery());
+
+        //$this->set('resultsBulkMenu', $this->app->make(MenuFactory::class)->createBulkMenu());
+        $this->set('result', $result);
+        $this->set('headerMenu', $headerMenu);
+        $this->set('headerSearch', $headerSearch);
+
+        $this->setThemeViewTemplate('full.php');
+    }
+
+    /**
+     * @param Query $query
+     * @return Result
+     */
+    protected function createSearchResult(Query $query)
+    {
+        $provider = $this->app->make(SearchProvider::class);
+        /** @var ResultFactory $resultFactory */
+        $resultFactory = $this->app->make(ResultFactory::class);
+        /** @var QueryModifier $queryModifier */
+        $queryModifier = $this->app->make(QueryModifier::class);
+        $queryModifier->addModifier(new AutoSortColumnRequestModifier($provider, $this->request, Request::METHOD_GET));
+        $queryModifier->addModifier(new ItemsPerPageRequestModifier($provider, $this->request, Request::METHOD_GET));
+        $query = $queryModifier->process($query);
+        return $resultFactory->createFromQuery($provider, $query);
+    }
+
+    protected function getSearchKeywordsField()
+    {
+        $keywords = null;
+
+        if ($this->request->query->has('keywords')) {
+            $keywords = $this->request->query->get('keywords');
+        }
+
+        return new KeywordsField($keywords);
+    }
+
+    public function advanced_search()
+    {
+        $query = $this->getQueryFactory()->createFromAdvancedSearchRequest(
+            $this->getSearchProvider(), $this->request, Request::METHOD_GET
+        );
+
+        $result = $this->createSearchResult($query);
+
+        $this->renderSearchResult($result);
+    }
+
+    public function preset($presetID = null)
+    {
+        if ($presetID) {
+            $preset = $this->entityManager->find(SavedUploadedFileSearch::class, $presetID);
+
+            if ($preset) {
+                /** @noinspection PhpParamsInspection */
+                $query = $this->getQueryFactory()->createFromSavedSearch($preset);
+                $result = $this->createSearchResult($query);
+                $this->renderSearchResult($result);
+                return;
+            }
+        }
+
+        $this->view();
+    }
+
     public function view()
     {
-        $headerMenu = new HeaderController();
-        $this->set('headerMenu', $headerMenu);
-        /** @var \Concrete\Package\DropBox\Controller\Search\UploadedFile $searchProvider */
-        $searchProvider = $this->app->make(\Concrete\Package\DropBox\Controller\Search\UploadedFile::class);
-        $result = $searchProvider->getCurrentSearchObject();
-        if (is_object($result)) {
-            $this->set('result', $result);
+        if (version_compare(APP_VERSION, "9.0", ">=")) {
+            $query = $this->getQueryFactory()->createQuery($this->getSearchProvider(), [
+                $this->getSearchKeywordsField()
+            ]);
+            $result = $this->createSearchResult($query);
+            $this->renderSearchResult($result);
+            /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+            $this->headerSearch->getElementController()->setQuery(null);
+        } else {
+            $headerMenu = new HeaderController();
+            $this->set('headerMenu', $headerMenu);
+            /** @var UploadedFile $searchProvider */
+            $searchProvider = $this->app->make(UploadedFile::class);
+            $result = $searchProvider->getCurrentSearchObject();
+            if (is_object($result)) {
+                $this->set('result', $result);
+            }
         }
     }
 }

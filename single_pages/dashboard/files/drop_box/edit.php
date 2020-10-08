@@ -123,7 +123,7 @@ $dateTime = $app->make(DateTime::class);
             <i class="fa fa-chevron-left"></i> <?php echo t('Back'); ?>
         </a>
         
-        <div class="pull-right">
+        <div class="pull-right float-right">
             <button type="submit" class="btn btn-primary">
                 <i class="fa fa-save" aria-hidden="true"></i> <?php echo t('Save'); ?>
             </button>

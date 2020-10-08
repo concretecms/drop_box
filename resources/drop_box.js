@@ -6,4 +6,9 @@ const Tus = require('@uppy/tus')
 const uppy = new Uppy({ autoProceed: false })
   .use(DragDrop, { target: '.drop-box' })
   .use(Dashboard, { trigger: '.drop-box' })
-  .use(Tus, { endpoint: CCM_DISPATCHER_FILENAME + '/ccm/tus_server/files' })
+  .use(Tus, {
+      endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
+      resume: true,
+      autoRetry: true,
+      retryDelays: [0, 1000, 3000, 5000]
+  })

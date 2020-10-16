@@ -3,29 +3,17 @@
   "description": "concrete5 package to enable big file uploads.",
   "type": "concrete5-package",
   "license": "MIT",
-  "prefer-stable": "true",
+  "prefer-stable": true,
   "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
       "Concrete5\\Dropbox\\": "src"
     }
   },
-  "replace": {
-    "symfony/console": "*",
-    "symfony/event-dispatcher": "*",
-    "symfony/http-foundation": "*",
-    "guzzlehttp/guzzle": "*",
-    "guzzlehttp/psr7": "*",
-    "guzzlehttp/promises": "*",
-    "league/flysystem": "*"
-  },
   "require": {
     "league/flysystem-aws-s3-v3": "^1.0",
     "ankitpokhrel/tus-php": "^1.2",
     "aws/aws-sdk-php": "^3.155",
     "ramsey/uuid": "^3.9"
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "2.1.3"
   }
 }

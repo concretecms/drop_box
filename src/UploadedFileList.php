@@ -37,7 +37,7 @@ class UploadedFileList extends ItemList implements PagerProviderInterface, Pagin
      */
     public function filterByKeywords($keywords)
     {
-        $this->query->andWhere('(t0.`primaryIdentifier` LIKE :keywords OR t0.`fileIdentifier` LIKE :keywords OR t0.`owner` LIKE :keywords OR t0.`createdAt` LIKE :keywords)');
+        $this->query->andWhere('(t0.`primaryIdentifier` LIKE :keywords OR t0.`fileIdentifier` LIKE :keywords OR t0.`createdAt` LIKE :keywords)');
         $this->query->setParameter('keywords', '%' . $keywords . '%');
     }
 

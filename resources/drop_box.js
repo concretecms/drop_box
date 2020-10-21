@@ -9,6 +9,7 @@ const uppy = new Uppy({ autoProceed: false })
   .use(Tus, {
       endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
       resume: true,
+      chunkSize: 1000000, /* 1mb */
       autoRetry: true,
       retryDelays: [0, 1000, 3000, 5000]
   })

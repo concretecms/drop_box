@@ -12,7 +12,7 @@
         <job handle="remove_expired_files" package="drop_box"/>
     </jobs>
     <permissionkeys>
-        <permissionkey handle="upload_file_to_drop_box" name="Upload File to Drop Box" description="" package="drop_box" category="file_folder">
+        <permissionkey handle="upload_file_to_drop_box" name="Upload File to Drop Box" description="" package="drop_box" category="admin">
             <access>
                 <group name="Administrators" description=""/>
             </access>

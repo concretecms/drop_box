@@ -80,10 +80,10 @@ class DropBox extends AbstractController
         if ($fileVersion instanceof Version) {
             $file = $fileVersion->getFile();
 
-            $permissionChecker = new Checker($file);
+            $permissionChecker = new Checker();
 
             /** @noinspection PhpUnhandledExceptionInspection */
-            if (!$permissionChecker->getResponseObject()->validate("upload_file_to_drop_box")) {
+            if (!$permissionChecker->canUploadFileToDropBox()) {
                 $this->error->add(t("You don't have the permission to upload files."));
 
                 try {

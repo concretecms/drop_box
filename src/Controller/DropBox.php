@@ -69,6 +69,9 @@ class DropBox extends AbstractController
     /** @noinspection PhpUnused */
     public function onUploadComplete(TusEvent $event)
     {
+        // First, removed the cached file
+        $this->server->getCache()->delete($event->getFile()->getKey());
+        
         $fileVersion = null;
 
         try {

@@ -2,15 +2,18 @@
 
 namespace Concrete\Package\DropBox;
 
+use Concrete\Core\Config\Repository\Repository;
+use Concrete\Core\File\Filesystem;
 use Concrete\Core\Package\Package;
 use Concrete\Core\Package\PackageService;
+use Concrete\Core\Tree\Node\Type\FileFolder;
 use Concrete5\DropBox\ServiceProvider;
 use Concrete\Core\File\StorageLocation\Type\Type;
 
 class Controller extends Package
 {
     protected $appVersionRequired = '8.0.0';
-    protected $pkgVersion = '0.2.0';
+    protected $pkgVersion = '0.2.1';
     protected $pkgHandle = 'drop_box';
     protected $pkgDescription = '';
     protected $pkgAutoloaderRegistries = ['src' => 'Concrete5\DropBox'];
@@ -37,6 +40,19 @@ class Controller extends Package
 
         if (!$storageObject instanceof Type) {
             Type::add('s3', t('Amazon S3'), $pkg);
+        }
+
+        // Create BrandCentral folder
+        $filesystem = new Filesystem();
+        $folderName = t("Drop Box");
+        $rootFolder = $filesystem->getRootFolder();
+        $folder = FileFolder::getNodeByName($folderName);
+
+        if (!$folder instanceof FileFolder) {
+            $createdFolder = $filesystem->addFolder($rootFolder, $folderName);
+            /** @var Repository $config */
+            $config = $this->app->make(Repository::class);
+            $config->save("drop_box.target_upload_directory_id", $createdFolder->getTreeNodeID());
         }
     }
 

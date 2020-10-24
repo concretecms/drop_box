@@ -35,6 +35,7 @@ class DropBoxSettings extends DashboardPageController
 
         $this->set('storageLocationList', $storageLocationList);
         $this->set('storageLocation', (int)$this->config->get("drop_box.storage_location", 0));
+        $this->set('uploadDirectoryId', (int)$this->config->get("drop_box.target_upload_directory_id", 0));
     }
 
     private function validate()
@@ -63,6 +64,7 @@ class DropBoxSettings extends DashboardPageController
 
         if ($this->request->getMethod() === "POST" && $this->validate()) {
             $this->config->save("drop_box.storage_location", (int)$this->request->request->get("storageLocation"));
+            $this->config->save("drop_box.target_upload_directory_id", (int)$this->request->request->get("uploadDirectoryId"));
 
             $this->set("success", t("The settings has been updated successfully."));
         }

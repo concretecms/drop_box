@@ -3,18 +3,22 @@
 defined('C5_EXECUTE') or die('Access denied');
 
 use Concrete\Core\Form\Service\Form;
+use Concrete\Core\Form\Service\Widget\FileFolderSelector;
 use Concrete\Core\Support\Facade\Application;
 use Concrete\Core\Support\Facade\Url;
 use Concrete\Core\Validation\CSRF\Token;
 
 /** @var array $storageLocationList */
 /** @var int $storageLocation */
+/** @var int $uploadDirectoryId */
 
 $app = Application::getFacadeApplication();
 /** @var Form $form */
 $form = $app->make(Form::class);
 /** @var Token $token */
 $token = $app->make(Token::class);
+/** @var FileFolderSelector $fileFolderSelector */
+$fileFolderSelector = $app->make(FileFolderSelector::class);
 ?>
 
 <form action="#" method="post">
@@ -33,9 +37,14 @@ $token = $app->make(Token::class);
         ); ?>
     </div>
 
+    <div class="form-group">
+        <?php echo $form->label("uploadDirectoryId", t("Upload Destination")); ?>
+        <?php echo $fileFolderSelector->selectFileFolder('uploadDirectoryId', $uploadDirectoryId); ?>
+    </div>
+
     <div class="ccm-dashboard-form-actions-wrapper">
         <div class="ccm-dashboard-form-actions">
-            <div class="pull-right">
+            <div class="float-right">
                 <button type="submit" class="btn btn-primary">
                     <?php echo t("Save"); ?>
                 </button>

@@ -181,7 +181,7 @@ class DropBox extends DashboardPageController
             if ($file instanceof \Concrete\Core\Entity\File\File) {
                 $file->delete();
             }
-            
+
             $this->entityManager->remove($entry);
             $this->entityManager->flush();
 

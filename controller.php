@@ -7,6 +7,7 @@ use Concrete\Core\File\Filesystem;
 use Concrete\Core\Package\Package;
 use Concrete\Core\Package\PackageService;
 use Concrete\Core\Tree\Node\Type\FileFolder;
+use Concrete5\DropBox\Console\Command\RemoveExpiredFiles;
 use Concrete5\DropBox\ServiceProvider;
 use Concrete\Core\File\StorageLocation\Type\Type;
 
@@ -74,6 +75,11 @@ class Controller extends Package
     {
         if (file_exists($this->getPackagePath() . "/vendor")) {
             require_once $this->getPackagePath() . "/vendor/autoload.php";
+        }
+
+        if ($this->app->isRunThroughCommandLineInterface()) {
+            $console = $this->app->make('console');
+            $console->add(new RemoveExpiredFiles());
         }
 
         /** @var ServiceProvider $serviceProvider */

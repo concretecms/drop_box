@@ -34,11 +34,14 @@ class RemoveExpiredFiles extends Job
 
     public function run()
     {
-        $rows = $this->connection->fetchAll("SELECT * FROM UploadedFile WHERE DATE_ADD(createdAt, INTERVAL 45 DAY) > NOW()");
+        $rows = $this->connection->fetchAll("SELECT * FROM UploadedFile WHERE DATE_ADD(createdAt, INTERVAL 45 DAY) < NOW()");
 
         foreach ($rows as $row) {
             $file = File::getByID($row["fID"]);
-            $file->delete();
+
+            if ($file instanceof \Concrete\Core\Entity\File\File) {
+                $file->delete();
+            }
 
             $entry = $this->entityManager->getRepository(UploadedFile::class)->findOneBy([
                 "primaryIdentifier" => $row["primaryIdentifier"],

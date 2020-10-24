@@ -37,12 +37,3 @@ npm run deploy
 ```
 
 This will create a zip file located at `build/drop_box.zip`. The zip archive contains the package which is cleaned up with PHP CS Fixer and don't contain any unnecessary files that are used in development. 
-
-## TODO
-
-- General
-    - Test TUS server library
-    - Implement S3 Storage
-    - Implement Settings page
-    - Implement Public URL Controller + Routing + Add "Get Public URL" menu item to context menu
-    - Implement permissions check

@@ -4,6 +4,7 @@ namespace Concrete5\DropBox;
 
 use Concrete\Core\Application\UserInterface\ContextMenu\DropdownMenu;
 use Concrete\Core\Application\UserInterface\ContextMenu\Item\LinkItem;
+use Concrete\Core\Entity\File\File;
 use Concrete\Core\Support\Facade\Url;
 use Concrete5\DropBox\Entity\UploadedFile;
 
@@ -14,6 +15,15 @@ class Menu extends DropdownMenu
     public function __construct(UploadedFile $uploadedFileEntry)
     {
         parent::__construct();
+
+        if ($uploadedFileEntry->getFile() instanceof File) {
+            $this->addItem(
+                new LinkItem(
+                    (string)Url::to("/dashboard/files/details", $uploadedFileEntry->getFile()->getFileID()),
+                    t('View Details')
+                )
+            );
+        }
 
         $this->addItem(
             new LinkItem(

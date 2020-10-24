@@ -12,6 +12,7 @@ defined('C5_EXECUTE') or die('Access denied');
 
 /** @noinspection DuplicatedCode */
 
+use Concrete\Core\Application\UserInterface\ContextMenu\DropdownMenu;
 use Concrete\Core\Application\UserInterface\ContextMenu\MenuInterface;
 use Concrete5\DropBox\Entity\UploadedFile;
 use Concrete5\DropBox\Menu;
@@ -22,7 +23,7 @@ use Concrete5\DropBox\Search\UploadedFile\Result\Result;
 use Concrete\Core\Support\Facade\Url;
 
 /** @var Result|null $result */
-
+/** @var DropdownMenu $resultsBulkMenu */
 /** @var MenuInterface $menu */
 /** @var Result $result */
 
@@ -52,6 +53,10 @@ use Concrete\Core\Support\Facade\Url;
                                 <?php echo t("Toggle Dropdown"); ?>
                             </span>
                         </button>
+
+                        <div data-search-menu="dropdown">
+                            <?php echo $resultsBulkMenu->getMenuElement(); ?>
+                        </div>
                     </div>
                 </th>
 
@@ -85,7 +90,7 @@ use Concrete\Core\Support\Facade\Url;
                             <!--suppress HtmlFormInputWithoutLabel -->
                             <input data-search-checkbox="individual"
                                    type="checkbox"
-                                   data-item-id="<?php echo $uploadedFileEntry->getPrimaryIdentifier() ?>"/>
+                                   data-item-id="<?php echo $uploadedFileEntry->getPrimaryIdentifier() ?>_<?php echo $uploadedFileEntry->getFileIdentifier() ?>"/>
                         <?php endif; ?>
                     </td>
 

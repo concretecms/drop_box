@@ -243,6 +243,8 @@ class DropBox extends DashboardPageController
         $this->set('headerMenu', $headerMenu);
         $this->set('headerSearch', $headerSearch);
 
+        $this->set('resultsBulkMenu', $this->app->make(\Concrete5\DropBox\Search\UploadedFile\Menu\MenuFactory::class)->createBulkMenu());
+
         $this->setThemeViewTemplate('full.php');
     }
 

@@ -176,6 +176,12 @@ class DropBox extends DashboardPageController
         ]);
 
         if ($entry instanceof UploadedFileEntity) {
+            $file = $entry->getFile();
+
+            if ($file instanceof \Concrete\Core\Entity\File\File) {
+                $file->delete();
+            }
+            
             $this->entityManager->remove($entry);
             $this->entityManager->flush();
 

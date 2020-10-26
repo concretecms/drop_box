@@ -7,7 +7,7 @@
             <key/>
         </field>
 
-        <!-- Blocks need a field, even if it isn't used -->
-        <field name="dummy" type="boolean"/>
+        <field name="uploadCompleteResponse" type="text" />
+        <field name="displayUrlToUploadedFile" type="boolean"/>
     </table>
 </schema>

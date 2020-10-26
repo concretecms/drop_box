@@ -28,6 +28,7 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use TusPhp\Events\TusEvent;
 use TusPhp\Tus\Server;
 use DateTime;
@@ -71,7 +72,7 @@ class DropBox extends AbstractController
     {
         // First, removed the cached file
         $this->server->getCache()->delete($event->getFile()->getKey());
-        
+
         $fileVersion = null;
 
         try {
@@ -117,7 +118,7 @@ class DropBox extends AbstractController
                 }
 
                 try {
-                    $primaryIdentifier = Uuid::uuid4()->toString();
+                    $primaryIdentifier = $event->getFile()->getKey();
                     $fileIdentifier = Uuid::uuid4()->toString();
                 } catch (Exception $e) {
                     $this->error->add(t("There was an error while generating the unique identifiers."));
@@ -188,7 +189,7 @@ class DropBox extends AbstractController
                 $approvedVersion = $file->getApprovedVersion();
 
                 if ($approvedVersion instanceof Version) {
-                    return new StreamedResponse(function() use ($approvedVersion) {
+                    return new StreamedResponse(function () use ($approvedVersion) {
                         $outputStream = fopen('php://output', 'wb');
                         $fileStream = $approvedVersion->getFileResource();
                         stream_copy_to_stream($fileStream->readStream(), $outputStream);
@@ -201,6 +202,31 @@ class DropBox extends AbstractController
         }
 
         return $this->responseFactory->notFound(t("The download item is invalid or expired."));
+    }
+
+    public function resolveDownloadUrl($primaryIdentifier)
+    {
+        $downloadUrl = null;
+
+        $entry = $this->entityManager->getRepository(UploadedFile::class)->findOneBy([
+            "primaryIdentifier" => $primaryIdentifier
+        ]);
+
+        if ($entry instanceof UploadedFile) {
+            $file = $entry->getFile();
+
+            if ($file instanceof File) {
+                $approvedVersion = $file->getApprovedVersion();
+
+                if ($approvedVersion instanceof Version) {
+                    $downloadUrl = (string)$approvedVersion->getDownloadURL();
+                }
+            }
+        }
+
+        return new JsonResponse([
+            "downloadUrl" => $downloadUrl
+        ]);
     }
 
     public function upload($path = null)

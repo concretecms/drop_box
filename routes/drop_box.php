@@ -11,3 +11,4 @@ defined('C5_EXECUTE') or die('Access Denied.');
 $router->all('/upload', 'DropBox::upload');
 $router->all('/upload/{path}', 'DropBox::upload');
 $router->all('/download/{primaryIdentifier}/{fileIdentifier}', 'DropBox::download');
+$router->get('/resolve_download_url/{primaryIdentifier}', 'DropBox::resolveDownloadUrl');

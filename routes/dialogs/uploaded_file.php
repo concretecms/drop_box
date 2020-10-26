@@ -8,6 +8,8 @@ defined('C5_EXECUTE') or die('Access Denied.');
  * Namespace: Concrete\Package\DropBox\Controller\Dialog\UploadedFile
  */
 
+$router->all('/bulk/delete', 'Bulk\Delete::view');
+$router->all('/bulk/delete/submit', 'Bulk\Delete::submit');
 $router->all('/advanced_search', 'AdvancedSearch::view');
 $router->all('/advanced_search/add_field', 'AdvancedSearch::addField');
 $router->all('/advanced_search/submit', 'AdvancedSearch::submit');

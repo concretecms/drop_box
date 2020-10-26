@@ -18,7 +18,7 @@ use Closure;
 class UploadedFileList extends ItemList implements PagerProviderInterface, PaginationProviderInterface
 {
     protected $isFulltextSearch = false;
-    protected $autoSortColumns = ['t0.PrimaryIdentifier', 't0.FileIdentifier', 't0.File', 't0.Owner', 't0.CreatedAt'];
+    protected $autoSortColumns = ['t0.primaryIdentifier', 't0.fileIdentifier', 't0.file', 't0.owner', 't0.createdAt'];
     protected $permissionsChecker = -1;
 
     public function createQuery()

@@ -4,3 +4,19 @@
 @import "../node_modules/@uppy/provider-views/dist/style.css";
 @import "../node_modules/@uppy/informer/dist/style.css";
 @import "../node_modules/@uppy/drag-drop/dist/style.css";
+
+.drop-box-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+
+    }
+  }
+}

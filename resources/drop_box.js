@@ -8,6 +8,8 @@ let uppy = null;
 (function ($) {
     $.fn.dropBox = function (options) {
         let $dropBox = this;
+        let $dropBoxModal = $(options.modalSelector);
+        let xhrRequests = [];
 
         uppy = new Uppy({autoProceed: false})
             .use(DragDrop, {
@@ -16,7 +18,7 @@ let uppy = null;
             })
             .use(Dashboard, {
                 trigger: "#" + $dropBox.attr("id"),
-                showLinkToFileUploadResult: options.displayUrlToUploadedFile
+                closeAfterFinish: true
             })
             .use(Tus, {
                 endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
@@ -26,33 +28,32 @@ let uppy = null;
                 retryDelays: [0, 1000, 3000, 5000]
             })
 
+        uppy.on('file-added', (file) => {
+            $dropBoxModal.find(".drop-box-file-list").html("");
+        })
+
         uppy.on('upload-success', (file, response) => {
-            $.getJSON({
-                url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
-            }, (json) => {
-                uppy.getState().files[file.id].uploadURL = json.downloadUrl;
-            });
+            if (options.displayUrlToUploadedFile) {
+                xhrRequests.push($.getJSON({
+                    url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
+                }, (json) => {
+                    $dropBoxModal.find(".drop-box-file-list").append(
+                        $("<li></li>")
+                            .html(
+                                $("<a></a>")
+                                    .attr("href", json.downloadUrl)
+                                    .attr("target", "_blank")
+                                    .html(json.fileName)
+                            )
+                    );
+                }));
+            }
         })
 
         uppy.on('complete', () => {
-            let $alert = $("<div></div>")
-                .addClass("alert alert-success alert-dismissible fade show")
-                .attr("role", "alert")
-                .html(options.uploadCompleteResponse);
-
-            let $button = $("<button></button>")
-                .addClass("close")
-                .attr("type", "button")
-                .attr("data-dismiss", "alert")
-                .attr("data-dismiss", "close");
-
-            let $span = $("<span></span>")
-                .attr("aria-hidden", "true")
-                .html("&times;");
-
-            $button.append($span);
-            $alert.append($button);
-            $dropBox.prepend($alert);
+            Promise.all(xhrRequests).then(() => {
+                $dropBoxModal.modal('show');
+            });
         })
 
         return this;

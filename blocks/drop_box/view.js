@@ -18739,6 +18739,8 @@ var uppy = null;
 (function ($) {
   $.fn.dropBox = function (options) {
     var $dropBox = this;
+    var $dropBoxModal = $(options.modalSelector);
+    var xhrRequests = [];
     uppy = new Uppy({
       autoProceed: false
     }).use(DragDrop, {
@@ -18746,7 +18748,7 @@ var uppy = null;
       note: 'test'
     }).use(Dashboard, {
       trigger: "#" + $dropBox.attr("id"),
-      showLinkToFileUploadResult: options.displayUrlToUploadedFile
+      closeAfterFinish: true
     }).use(Tus, {
       endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
       resume: true,
@@ -18756,20 +18758,22 @@ var uppy = null;
       autoRetry: true,
       retryDelays: [0, 1000, 3000, 5000]
     });
+    uppy.on('file-added', function (file) {
+      $dropBoxModal.find(".drop-box-file-list").html("");
+    });
     uppy.on('upload-success', function (file, response) {
-      $.getJSON({
-        url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
-      }, function (json) {
-        uppy.getState().files[file.id].uploadURL = json.downloadUrl;
-      });
+      if (options.displayUrlToUploadedFile) {
+        xhrRequests.push($.getJSON({
+          url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
+        }, function (json) {
+          $dropBoxModal.find(".drop-box-file-list").append($("<li></li>").html($("<a></a>").attr("href", json.downloadUrl).attr("target", "_blank").html(json.fileName)));
+        }));
+      }
     });
     uppy.on('complete', function () {
-      var $alert = $("<div></div>").addClass("alert alert-success alert-dismissible fade show").attr("role", "alert").html(options.uploadCompleteResponse);
-      var $button = $("<button></button>").addClass("close").attr("type", "button").attr("data-dismiss", "alert").attr("data-dismiss", "close");
-      var $span = $("<span></span>").attr("aria-hidden", "true").html("&times;");
-      $button.append($span);
-      $alert.append($button);
-      $dropBox.prepend($alert);
+      Promise.all(xhrRequests).then(function () {
+        $dropBoxModal.modal('show');
+      });
     });
     return this;
   };

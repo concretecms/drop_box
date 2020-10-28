@@ -207,6 +207,7 @@ class DropBox extends AbstractController
     public function resolveDownloadUrl($primaryIdentifier)
     {
         $downloadUrl = null;
+        $fileName = null;
 
         $entry = $this->entityManager->getRepository(UploadedFile::class)->findOneBy([
             "primaryIdentifier" => $primaryIdentifier
@@ -220,12 +221,14 @@ class DropBox extends AbstractController
 
                 if ($approvedVersion instanceof Version) {
                     $downloadUrl = (string)$approvedVersion->getDownloadURL();
+                    $fileName = $approvedVersion->getFileName();
                 }
             }
         }
 
         return new JsonResponse([
-            "downloadUrl" => $downloadUrl
+            "downloadUrl" => $downloadUrl,
+            "fileName" => $fileName
         ]);
     }
 

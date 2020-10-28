@@ -3524,5 +3524,15 @@ a.uppy-Dashboard-poweredBy {
 .uppy-DragDrop-note {
   font-size: 1em;
   color: #adadad; }
+.drop-box-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
+.drop-box-file-list li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 

@@ -25,7 +25,8 @@ let uppy = null;
                 resume: true,
                 chunkSize: 1000000, /* 1mb */
                 autoRetry: true,
-                retryDelays: [0, 1000, 3000, 5000]
+                limit: 10,
+                retryDelays: [1000, 3000, 5000, 8000]
             })
 
         uppy.on('file-added', (file) => {

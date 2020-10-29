@@ -37,15 +37,16 @@ let uppy = null;
                 xhrRequests.push($.getJSON({
                     url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
                 }, (json) => {
-                    $dropBoxModal.find(".drop-box-file-list").append(
-                        $("<li></li>")
-                            .html(
-                                $("<a></a>")
-                                    .attr("href", json.downloadUrl)
-                                    .attr("target", "_blank")
-                                    .html(json.fileName)
-                            )
-                    );
+                    var header = $("<h5 />")
+                    var input = $("<input />")
+                    var resultList = $("<li></li>")
+                    resultList.attr('class', 'mb-4')
+                    header.text(json.fileName)
+                    input
+                        .attr('class', 'form-control')
+                        .attr('value', json.downloadUrl)
+                    resultList.append(header).append(input)
+                    $dropBoxModal.find(".drop-box-file-list").append(resultList)
                 }));
             }
         })

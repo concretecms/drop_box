@@ -16,37 +16,34 @@ $dropBoxModalId = "drop-box-modal-" . $idHelper->getString("16");
 ?>
 
 <div class="modal" tabindex="-1" role="dialog" id="<?php echo $dropBoxModalId; ?>">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header mb-2 mt-3">
                 <h5 class="modal-title">
-                    <?php echo t("Success"); ?>
+                    <?php echo t("Upload Complete"); ?>
                 </h5>
-
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
 
             <div class="modal-body">
-                <p>
-                    <?php echo $uploadCompleteResponse; ?>
-                </p>
+                <?php echo $uploadCompleteResponse; ?>
 
                 <?php if ((int)$displayUrlToUploadedFile === 1) { ?>
-                    <h3>
-                        <?php echo t("List of uploaded files"); ?>
-                    </h3>
+                    <h4>
+                        <?php echo t("Download URL(s)"); ?>
+                    </h4>
 
                     <ul class="drop-box-file-list">
 
                     </ul>
+
+                    <div class="alert alert-info"><?=t('Files uploaded to the drop box will be purged after 45 days.')?></div>
+
                 <?php } ?>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <?php echo t("Close"); ?>
+                <button type="button" class="btn btn-round" data-dismiss="modal">
+                    <?php echo t("Close Window"); ?>
                 </button>
             </div>
         </div>

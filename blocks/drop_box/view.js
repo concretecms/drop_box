@@ -4728,11 +4728,8 @@ function _assertThisInitialized(self) { if (self === void 0) { throw new Referen
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
 
-var _require = __webpack_require__(/*! preact */ "./node_modules/preact/dist/preact.esm.js"),
-    h = _require.h;
-
-var _require2 = __webpack_require__(/*! @uppy/core */ "./node_modules/@uppy/core/lib/index.js"),
-    Plugin = _require2.Plugin;
+var _require = __webpack_require__(/*! @uppy/core */ "./node_modules/@uppy/core/lib/index.js"),
+    Plugin = _require.Plugin;
 
 var Translator = __webpack_require__(/*! @uppy/utils/lib/Translator */ "./node_modules/@uppy/utils/lib/Translator.js");
 
@@ -5854,7 +5851,7 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
       theme: 'light'
     }; // merge default options with the ones set by user
 
-    _this.opts = _extends({}, defaultOptions, _opts);
+    _this.opts = _extends({}, defaultOptions, {}, _opts);
 
     _this.i18nInit();
 
@@ -5867,7 +5864,7 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
   }
 
   return Dashboard;
-}(Plugin), _class.VERSION = "1.12.8", _temp);
+}(Plugin), _class.VERSION = "1.12.7", _temp);
 
 /***/ }),
 
@@ -8084,8 +8081,7 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
       resume: true,
       useFastRemoteRetry: true,
       limit: 0,
-      retryDelays: [0, 1000, 3000, 5000],
-      withCredentials: false
+      retryDelays: [0, 1000, 3000, 5000]
     }; // merge default options with the ones set by user
 
     /** @type {import("..").TusOptions} */
@@ -8224,11 +8220,6 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
 
 
       uploadOptions.fingerprint = getFingerprint(file);
-
-      uploadOptions.onBeforeRequest = function (req) {
-        var xhr = req.getUnderlyingObject();
-        xhr.withCredentials = !!opts.withCredentials;
-      };
 
       uploadOptions.onError = function (err) {
         _this2.uppy.log(err);
@@ -8789,7 +8780,7 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
   };
 
   return Tus;
-}(Plugin), _class.VERSION = "1.7.7", _temp);
+}(Plugin), _class.VERSION = "1.7.6", _temp);
 
 /***/ }),
 
@@ -18766,7 +18757,14 @@ var uppy = null;
         xhrRequests.push($.getJSON({
           url: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/resolve_download_url/' + response.uploadURL.split("/").pop()
         }, function (json) {
-          $dropBoxModal.find(".drop-box-file-list").append($("<li></li>").html($("<a></a>").attr("href", json.downloadUrl).attr("target", "_blank").html(json.fileName)));
+          var header = $("<h5 />");
+          var input = $("<input />");
+          var resultList = $("<li></li>");
+          resultList.attr('class', 'mb-4');
+          header.text(json.fileName);
+          input.attr('class', 'form-control').attr('value', json.downloadUrl);
+          resultList.append(header).append(input);
+          $dropBoxModal.find(".drop-box-file-list").append(resultList);
         }));
       }
     });
@@ -18799,8 +18797,8 @@ var uppy = null;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /Users/fabianbitter/Projekte/concrete5/core/8.5.1/packages/drop_box/resources/drop_box.js */"./resources/drop_box.js");
-module.exports = __webpack_require__(/*! /Users/fabianbitter/Projekte/concrete5/core/8.5.1/packages/drop_box/resources/drop_box.scss */"./resources/drop_box.scss");
+__webpack_require__(/*! /Users/andrewembler/projects/drop_box/resources/drop_box.js */"./resources/drop_box.js");
+module.exports = __webpack_require__(/*! /Users/andrewembler/projects/drop_box/resources/drop_box.scss */"./resources/drop_box.scss");
 
 
 /***/ })

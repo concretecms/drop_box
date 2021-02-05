@@ -18735,8 +18735,7 @@ var uppy = null;
     uppy = new Uppy({
       autoProceed: false
     }).use(DragDrop, {
-      target: "#" + $dropBox.attr("id"),
-      note: 'test'
+      target: "#" + $dropBox.attr("id")
     }).use(Dashboard, {
       trigger: "#" + $dropBox.attr("id"),
       closeAfterFinish: true
@@ -18747,7 +18746,8 @@ var uppy = null;
 
       /* 1mb */
       autoRetry: true,
-      retryDelays: [0, 1000, 3000, 5000]
+      limit: 10,
+      retryDelays: [1000, 3000, 5000, 8000]
     });
     uppy.on('file-added', function (file) {
       $dropBoxModal.find(".drop-box-file-list").html("");

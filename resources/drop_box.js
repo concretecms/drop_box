@@ -13,8 +13,7 @@ let uppy = null;
 
         uppy = new Uppy({autoProceed: false})
             .use(DragDrop, {
-                target: "#" + $dropBox.attr("id"),
-                note: 'test'
+                target: "#" + $dropBox.attr("id")
             })
             .use(Dashboard, {
                 trigger: "#" + $dropBox.attr("id"),

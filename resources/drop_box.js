@@ -10,14 +10,15 @@ let uppy = null;
         let $dropBox = this;
         let $dropBoxModal = $(options.modalSelector);
         let xhrRequests = [];
-
+        
         uppy = new Uppy({autoProceed: false})
             .use(DragDrop, {
                 target: "#" + $dropBox.attr("id")
             })
             .use(Dashboard, {
                 trigger: "#" + $dropBox.attr("id"),
-                closeAfterFinish: true
+                closeAfterFinish: true,
+                proudlyDisplayPoweredByUppy: false
             })
             .use(Tus, {
                 endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',

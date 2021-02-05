@@ -18738,7 +18738,8 @@ var uppy = null;
       target: "#" + $dropBox.attr("id")
     }).use(Dashboard, {
       trigger: "#" + $dropBox.attr("id"),
-      closeAfterFinish: true
+      closeAfterFinish: true,
+      proudlyDisplayPoweredByUppy: false
     }).use(Tus, {
       endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
       resume: true,

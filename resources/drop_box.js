@@ -1,6 +1,7 @@
 const Uppy = require('@uppy/core')
 const Dashboard = require('@uppy/dashboard')
 const DragDrop = require('@uppy/drag-drop')
+const DropTarget = require('@uppy/drop-target')
 const Tus = require('@uppy/tus')
 
 let uppy = null;
@@ -10,24 +11,30 @@ let uppy = null;
         let $dropBox = this;
         let $dropBoxModal = $(options.modalSelector);
         let xhrRequests = [];
-        
-        uppy = new Uppy({autoProceed: false})
-            .use(DragDrop, {
-                target: "#" + $dropBox.attr("id")
+
+        const uppy = new Uppy({
+                autoProceed: false,
             })
             .use(Dashboard, {
-                trigger: "#" + $dropBox.attr("id"),
-                closeAfterFinish: true,
+                inline: true,
+                target: "#" + $dropBox.attr("id"),
+                replaceTargetContent: true,
+                showProgressDetails: true,
+                width: 'auto',
+                height: 600,
+                browserBackButtonClose: false,
                 proudlyDisplayPoweredByUppy: false
             })
             .use(Tus, {
                 endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
                 resume: true,
-                chunkSize: 1000000, /* 1mb */
+                chunkSize: 1000000,
                 autoRetry: true,
                 limit: 10,
                 retryDelays: [1000, 3000, 5000, 8000]
             })
+            .use(DropTarget, {target: document.body })
+
 
         uppy.on('file-added', (file) => {
             $dropBoxModal.find(".drop-box-file-list").html("");

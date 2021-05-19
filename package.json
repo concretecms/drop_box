@@ -25,6 +25,7 @@
     "@uppy/core": "^1.13.2",
     "@uppy/dashboard": "^1.12.7",
     "@uppy/drag-drop": "^1.4.19",
+    "@uppy/drop-target": "^0.2.1",
     "@uppy/tus": "^1.7.6",
     "laravel-mix": "^5.0.5",
     "resolve-url-loader": "^3.1.0",
@@ -44,5 +45,7 @@
     "grunt-version": "^1.2.1",
     "shared-git-hooks": "^1.2.1",
     "cross-env": "^7.0.2"
+  },
+  "dependencies": {
   }
 }

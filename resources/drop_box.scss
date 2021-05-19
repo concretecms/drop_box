@@ -5,6 +5,11 @@
 @import "../node_modules/@uppy/informer/dist/style.css";
 @import "../node_modules/@uppy/drag-drop/dist/style.css";
 
+.drop-box {
+  margin-bottom: 2em;
+  margin-top: 2em;
+}
+
 .drop-box-file-list {
   list-style: none;
   margin: 0;

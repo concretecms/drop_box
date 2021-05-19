@@ -6598,6 +6598,381 @@ module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
 
 /***/ }),
 
+/***/ "./node_modules/@uppy/drop-target/lib/index.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/lib/index.js ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _class, _temp;
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var _require = __webpack_require__(/*! @uppy/core */ "./node_modules/@uppy/core/lib/index.js"),
+    Plugin = _require.Plugin;
+
+var getDroppedFiles = __webpack_require__(/*! @uppy/utils/lib/getDroppedFiles */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/index.js");
+
+var toArray = __webpack_require__(/*! @uppy/utils/lib/toArray */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/toArray.js");
+/**
+ * Drop Target plugin
+ *
+ */
+
+
+module.exports = (_temp = _class = /*#__PURE__*/function (_Plugin) {
+  _inheritsLoose(DropTarget, _Plugin);
+
+  function DropTarget(uppy, opts) {
+    var _this;
+
+    _this = _Plugin.call(this, uppy, opts) || this;
+
+    _this.addFiles = function (files) {
+      var descriptors = files.map(function (file) {
+        return {
+          source: _this.id,
+          name: file.name,
+          type: file.type,
+          data: file,
+          meta: {
+            // path of the file relative to the ancestor directory the user selected.
+            // e.g. 'docs/Old Prague/airbnb.pdf'
+            relativePath: file.relativePath || null
+          }
+        };
+      });
+
+      try {
+        _this.uppy.addFiles(descriptors);
+      } catch (err) {
+        _this.uppy.log(err);
+      }
+    };
+
+    _this.handleDrop = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      clearTimeout(_this.removeDragOverClassTimeout); // 2. Remove dragover class
+
+      event.currentTarget.classList.remove('uppy-is-drag-over');
+
+      _this.setPluginState({
+        isDraggingOver: false
+      }); // 3. Add all dropped files
+
+
+      _this.uppy.log('[DropTarget] Files were dropped');
+
+      var logDropError = function logDropError(error) {
+        _this.uppy.log(error, 'error');
+      };
+
+      getDroppedFiles(event.dataTransfer, {
+        logDropError: logDropError
+      }).then(function (files) {
+        return _this.addFiles(files);
+      });
+    };
+
+    _this.handleDragOver = function (event) {
+      event.preventDefault();
+      event.stopPropagation(); // 1. Add a small (+) icon on drop
+      // (and prevent browsers from interpreting this as files being _moved_ into the browser,
+      // https://github.com/transloadit/uppy/issues/1978)
+
+      event.dataTransfer.dropEffect = 'copy';
+      clearTimeout(_this.removeDragOverClassTimeout);
+      event.currentTarget.classList.add('uppy-is-drag-over');
+
+      _this.setPluginState({
+        isDraggingOver: true
+      });
+    };
+
+    _this.handleDragLeave = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      var currentTarget = event.currentTarget;
+      clearTimeout(_this.removeDragOverClassTimeout); // Timeout against flickering, this solution is taken from drag-drop library.
+      // Solution with 'pointer-events: none' didn't work across browsers.
+
+      _this.removeDragOverClassTimeout = setTimeout(function () {
+        currentTarget.classList.remove('uppy-is-drag-over');
+
+        _this.setPluginState({
+          isDraggingOver: false
+        });
+      }, 50);
+    };
+
+    _this.addListeners = function () {
+      var target = _this.opts.target;
+
+      if (target instanceof Element) {
+        _this.nodes = [target];
+      } else if (typeof target === 'string') {
+        _this.nodes = toArray(document.querySelectorAll(target));
+      }
+
+      if (!_this.nodes && !_this.nodes.length > 0) {
+        throw new Error("\"" + target + "\" does not match any HTML elements");
+      }
+
+      _this.nodes.forEach(function (node) {
+        node.addEventListener('dragover', _this.handleDragOver, false);
+        node.addEventListener('dragleave', _this.handleDragLeave, false);
+        node.addEventListener('drop', _this.handleDrop, false);
+      });
+    };
+
+    _this.removeListeners = function () {
+      if (_this.nodes) {
+        _this.nodes.forEach(function (node) {
+          node.removeEventListener('dragover', _this.handleDragOver, false);
+          node.removeEventListener('dragleave', _this.handleDragLeave, false);
+          node.removeEventListener('drop', _this.handleDrop, false);
+        });
+      }
+    };
+
+    _this.type = 'acquirer';
+    _this.id = _this.opts.id || 'DropTarget';
+    _this.title = 'Drop Target'; // Default options
+
+    var defaultOpts = {
+      target: null
+    }; // Merge default options with the ones set by user
+
+    _this.opts = _extends({}, defaultOpts, opts);
+    _this.removeDragOverClassTimeout = null;
+    return _this;
+  }
+
+  var _proto = DropTarget.prototype;
+
+  _proto.install = function install() {
+    this.setPluginState({
+      isDraggingOver: false
+    });
+    this.addListeners();
+  };
+
+  _proto.uninstall = function uninstall() {
+    this.removeListeners();
+  };
+
+  return DropTarget;
+}(Plugin), _class.VERSION = "0.2.1", _temp);
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/index.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/index.js ***!
+  \**********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var webkitGetAsEntryApi = __webpack_require__(/*! ./utils/webkitGetAsEntryApi/index */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/index.js");
+
+var fallbackApi = __webpack_require__(/*! ./utils/fallbackApi */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/fallbackApi.js");
+/**
+ * Returns a promise that resolves to the array of dropped files (if a folder is dropped, and browser supports folder parsing - promise resolves to the flat array of all files in all directories).
+ * Each file has .relativePath prop appended to it (e.g. "/docs/Prague/ticket_from_prague_to_ufa.pdf") if browser supports it. Otherwise it's undefined.
+ *
+ * @param {DataTransfer} dataTransfer
+ * @param {Function} logDropError - a function that's called every time some folder or some file error out (e.g. because of the folder name being too long on Windows). Notice that resulting promise will always be resolved anyway.
+ *
+ * @returns {Promise} - Array<File>
+ */
+
+
+module.exports = function getDroppedFiles(dataTransfer, _temp) {
+  var _ref = _temp === void 0 ? {} : _temp,
+      _ref$logDropError = _ref.logDropError,
+      logDropError = _ref$logDropError === void 0 ? function () {} : _ref$logDropError;
+
+  // Get all files from all subdirs. Works (at least) in Chrome, Mozilla, and Safari
+  if (dataTransfer.items && dataTransfer.items[0] && 'webkitGetAsEntry' in dataTransfer.items[0]) {
+    return webkitGetAsEntryApi(dataTransfer, logDropError); // Otherwise just return all first-order files
+  }
+
+  return fallbackApi(dataTransfer);
+};
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/fallbackApi.js":
+/*!**********************************************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/fallbackApi.js ***!
+  \**********************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toArray = __webpack_require__(/*! ../../toArray */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/toArray.js"); // .files fallback, should be implemented in any browser
+
+
+module.exports = function fallbackApi(dataTransfer) {
+  var files = toArray(dataTransfer.files);
+  return Promise.resolve(files);
+};
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getFilesAndDirectoriesFromDirectory.js":
+/*!******************************************************************************************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getFilesAndDirectoriesFromDirectory.js ***!
+  \******************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Recursive function, calls the original callback() when the directory is entirely parsed.
+ *
+ * @param {FileSystemDirectoryReader} directoryReader
+ * @param {Array} oldEntries
+ * @param {Function} logDropError
+ * @param {Function} callback - called with ([ all files and directories in that directoryReader ])
+ */
+module.exports = function getFilesAndDirectoriesFromDirectory(directoryReader, oldEntries, logDropError, _ref) {
+  var onSuccess = _ref.onSuccess;
+  directoryReader.readEntries(function (entries) {
+    var newEntries = [].concat(oldEntries, entries); // According to the FileSystem API spec, getFilesAndDirectoriesFromDirectory() must be called until it calls the onSuccess with an empty array.
+
+    if (entries.length) {
+      setTimeout(function () {
+        getFilesAndDirectoriesFromDirectory(directoryReader, newEntries, logDropError, {
+          onSuccess: onSuccess
+        });
+      }, 0); // Done iterating this particular directory
+    } else {
+      onSuccess(newEntries);
+    }
+  }, // Make sure we resolve on error anyway, it's fine if only one directory couldn't be parsed!
+  function (error) {
+    logDropError(error);
+    onSuccess(oldEntries);
+  });
+};
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getRelativePath.js":
+/*!**********************************************************************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getRelativePath.js ***!
+  \**********************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Get the relative path from the FileEntry#fullPath, because File#webkitRelativePath is always '', at least onDrop.
+ *
+ * @param {FileEntry} fileEntry
+ *
+ * @returns {string|null} - if file is not in a folder - return null (this is to be consistent with .relativePath-s of files selected from My Device). If file is in a folder - return its fullPath, e.g. '/simpsons/hi.jpeg'.
+ */
+module.exports = function getRelativePath(fileEntry) {
+  // fileEntry.fullPath - "/simpsons/hi.jpeg" or undefined (for browsers that don't support it)
+  // fileEntry.name - "hi.jpeg"
+  if (!fileEntry.fullPath || fileEntry.fullPath === "/" + fileEntry.name) {
+    return null;
+  }
+
+  return fileEntry.fullPath;
+};
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/index.js":
+/*!************************************************************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/index.js ***!
+  \************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var toArray = __webpack_require__(/*! ../../../toArray */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/toArray.js");
+
+var getRelativePath = __webpack_require__(/*! ./getRelativePath */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getRelativePath.js");
+
+var getFilesAndDirectoriesFromDirectory = __webpack_require__(/*! ./getFilesAndDirectoriesFromDirectory */ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/getDroppedFiles/utils/webkitGetAsEntryApi/getFilesAndDirectoriesFromDirectory.js");
+
+module.exports = function webkitGetAsEntryApi(dataTransfer, logDropError) {
+  var files = [];
+  var rootPromises = [];
+  /**
+   * Returns a resolved promise, when :files array is enhanced
+   *
+   * @param {(FileSystemFileEntry|FileSystemDirectoryEntry)} entry
+   * @returns {Promise} - empty promise that resolves when :files is enhanced with a file
+   */
+
+  var createPromiseToAddFileOrParseDirectory = function createPromiseToAddFileOrParseDirectory(entry) {
+    return new Promise(function (resolve) {
+      // This is a base call
+      if (entry.isFile) {
+        // Creates a new File object which can be used to read the file.
+        entry.file(function (file) {
+          file.relativePath = getRelativePath(entry);
+          files.push(file);
+          resolve();
+        }, // Make sure we resolve on error anyway, it's fine if only one file couldn't be read!
+        function (error) {
+          logDropError(error);
+          resolve();
+        }); // This is a recursive call
+      } else if (entry.isDirectory) {
+        var directoryReader = entry.createReader();
+        getFilesAndDirectoriesFromDirectory(directoryReader, [], logDropError, {
+          onSuccess: function onSuccess(entries) {
+            var promises = entries.map(function (entry) {
+              return createPromiseToAddFileOrParseDirectory(entry);
+            });
+            Promise.all(promises).then(function () {
+              return resolve();
+            });
+          }
+        });
+      }
+    });
+  }; // For each dropped item, - make sure it's a file/directory, and start deepening in!
+
+
+  toArray(dataTransfer.items).forEach(function (item) {
+    var entry = item.webkitGetAsEntry(); // :entry can be null when we drop the url e.g.
+
+    if (entry) {
+      rootPromises.push(createPromiseToAddFileOrParseDirectory(entry));
+    }
+  });
+  return Promise.all(rootPromises).then(function () {
+    return files;
+  });
+};
+
+/***/ }),
+
+/***/ "./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/toArray.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/@uppy/drop-target/node_modules/@uppy/utils/lib/toArray.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * Converts list into array
+ */
+module.exports = function toArray(list) {
+  return Array.prototype.slice.call(list || [], 0);
+};
+
+/***/ }),
+
 /***/ "./node_modules/@uppy/informer/lib/index.js":
 /*!**************************************************!*\
   !*** ./node_modules/@uppy/informer/lib/index.js ***!
@@ -18723,6 +19098,8 @@ var Dashboard = __webpack_require__(/*! @uppy/dashboard */ "./node_modules/@uppy
 
 var DragDrop = __webpack_require__(/*! @uppy/drag-drop */ "./node_modules/@uppy/drag-drop/lib/index.js");
 
+var DropTarget = __webpack_require__(/*! @uppy/drop-target */ "./node_modules/@uppy/drop-target/lib/index.js");
+
 var Tus = __webpack_require__(/*! @uppy/tus */ "./node_modules/@uppy/tus/lib/index.js");
 
 var uppy = null;
@@ -18732,23 +19109,26 @@ var uppy = null;
     var $dropBox = this;
     var $dropBoxModal = $(options.modalSelector);
     var xhrRequests = [];
-    uppy = new Uppy({
+    var uppy = new Uppy({
       autoProceed: false
-    }).use(DragDrop, {
-      target: "#" + $dropBox.attr("id")
     }).use(Dashboard, {
-      trigger: "#" + $dropBox.attr("id"),
-      closeAfterFinish: true,
+      inline: true,
+      target: "#" + $dropBox.attr("id"),
+      replaceTargetContent: true,
+      showProgressDetails: true,
+      width: 'auto',
+      height: 600,
+      browserBackButtonClose: false,
       proudlyDisplayPoweredByUppy: false
     }).use(Tus, {
       endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
       resume: true,
       chunkSize: 1000000,
-
-      /* 1mb */
       autoRetry: true,
       limit: 10,
       retryDelays: [1000, 3000, 5000, 8000]
+    }).use(DropTarget, {
+      target: document.body
     });
     uppy.on('file-added', function (file) {
       $dropBoxModal.find(".drop-box-file-list").html("");

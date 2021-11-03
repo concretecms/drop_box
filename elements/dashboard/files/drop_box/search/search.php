@@ -37,11 +37,11 @@ use Concrete\Core\Support\Facade\Url;
             <?php endif; ?>
 
             <?php
-            echo $form->search('keywords', [
-                'placeholder' => t('Search'),
-                'class' => 'form-control border-end-0',
-                'autocomplete' => 'off'
-            ]);
+                echo $form->search('keywords', [
+                    'placeholder' => t('Search'),
+                    'class' => 'form-control border-end-0',
+                    'autocomplete' => 'off'
+                ]);
             ?>
 
             <button type="submit" class="input-group-icon">
@@ -54,15 +54,15 @@ use Concrete\Core\Support\Facade\Url;
 </div>
 
 <script>
- (function ($) {
-     $(function () {
-         ConcreteEvent.subscribe('SavedSearchCreated', function () {
-             window.location.reload();
-         });
+     (function ($) {
+         $(function () {
+             ConcreteEvent.subscribe('SavedSearchCreated', function () {
+                 window.location.reload();
+             });
 
-         ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
-             window.location.href = url;
+             ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
+                 window.location.href = url;
+             });
          });
-     });
- })(jQuery);
+     })(jQuery);
 </script>

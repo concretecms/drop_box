@@ -23,7 +23,7 @@ use Concrete\Core\Support\Facade\Url;
                     <?php echo t('Advanced') ?>
 
                     <script type="text/concrete-query" data-query="advanced-search-query">
-                     <?php echo $query ?>
+                        <?php echo $query ?>
                     </script>
                 </a>
             <?php else: ?>

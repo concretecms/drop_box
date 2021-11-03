@@ -10,7 +10,7 @@ use Concrete\Core\Support\Facade\Url;
 ?>
 
 <div class="ccm-header-search-form ccm-ui" data-header="uploaded-files-manager">
-    <form method="get" class="form-inline" action="<?php echo $headerSearchAction ?>">
+    <form method="get" class="row row-cols-auto g-0 align-items-center" action="<?php echo $headerSearchAction ?>">
 
         <div class="ccm-header-search-form-input input-group">
             <?php if (isset($query)): ?>
@@ -23,7 +23,7 @@ use Concrete\Core\Support\Facade\Url;
                     <?php echo t('Advanced') ?>
 
                     <script type="text/concrete-query" data-query="advanced-search-query">
-                        <?php echo $query ?>
+                     <?php echo $query ?>
                     </script>
                 </a>
             <?php else: ?>
@@ -37,34 +37,32 @@ use Concrete\Core\Support\Facade\Url;
             <?php endif; ?>
 
             <?php
-                echo $form->search('keywords', [
-                    'placeholder' => t('Search'),
-                    'class' => 'border-right-0',
-                    'autocomplete' => 'off'
-                ]);
+            echo $form->search('keywords', [
+                'placeholder' => t('Search'),
+                'class' => 'form-control border-end-0',
+                'autocomplete' => 'off'
+            ]);
             ?>
-            
-            <div class="input-group-append">
-                <button type="submit" class="input-group-icon">
-                    <svg width="16" height="16">
-                        <use xlink:href="#icon-search"/>
-                    </svg>
-                </button>
-            </div>
+
+            <button type="submit" class="input-group-icon">
+                <svg width="16" height="16">
+                    <use xlink:href="#icon-search"/>
+                </svg>
+            </button>
         </div>
     </form>
 </div>
 
 <script>
-    (function ($) {
-        $(function () {
-            ConcreteEvent.subscribe('SavedSearchCreated', function () {
-                window.location.reload();
-            });
-            
-            ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
-                window.location.href = url;
-            });
-        });
-    })(jQuery);
+ (function ($) {
+     $(function () {
+         ConcreteEvent.subscribe('SavedSearchCreated', function () {
+             window.location.reload();
+         });
+
+         ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
+             window.location.href = url;
+         });
+     });
+ })(jQuery);
 </script>

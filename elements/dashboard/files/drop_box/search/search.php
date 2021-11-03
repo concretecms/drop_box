@@ -54,15 +54,15 @@ use Concrete\Core\Support\Facade\Url;
 </div>
 
 <script>
-     (function ($) {
-         $(function () {
-             ConcreteEvent.subscribe('SavedSearchCreated', function () {
-                 window.location.reload();
-             });
+    (function ($) {
+        $(function () {
+            ConcreteEvent.subscribe('SavedSearchCreated', function () {
+                window.location.reload();
+            });
 
-             ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
-                 window.location.href = url;
-             });
-         });
-     })(jQuery);
+            ConcreteEvent.subscribe('SavedPresetSubmit', function (e, url) {
+                window.location.href = url;
+            });
+        });
+    })(jQuery);
 </script>

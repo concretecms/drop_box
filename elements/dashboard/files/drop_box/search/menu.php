@@ -8,13 +8,13 @@ defined('C5_EXECUTE') or die("Access Denied.");
 /** @var $urlHelper Url */
 ?>
 
-<div class="form-inline">
+<div class="row row-cols-auto align-items-center">
     <?php if (!empty($itemsPerPageOptions)): ?>
-        <div class="btn-group">
+        <div class="dropdown">
             <button
                     type="button"
                     class="btn btn-secondary p-2 dropdown-toggle"
-                    data-toggle="dropdown"
+                    data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false">
 
@@ -49,9 +49,8 @@ defined('C5_EXECUTE') or die("Access Denied.");
     <ul class="ccm-dashboard-header-icons">
         <li>
             <a href="<?php echo UrlFacade::to("/dashboard/files/drop_box/add"); ?>">
-                <i class="fa fa-plus"></i> <?php echo t('Add Entry'); ?>
+                <i class="fas fa-plus"></i> <?php echo t('Add Entry'); ?>
             </a>
         </li>
     </ul>
 </div>
-

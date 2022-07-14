@@ -11,6 +11,7 @@ let uppy = null;
         let $dropBox = this;
         let $dropBoxModal = $(options.modalSelector);
         let xhrRequests = [];
+        const chunkSize = typeof options.chunkSize === 'undefined' ? 1000000 : options.chunkSize
 
         const uppy = new Uppy({
                 autoProceed: false,
@@ -28,7 +29,7 @@ let uppy = null;
             .use(Tus, {
                 endpoint: CCM_DISPATCHER_FILENAME + '/ccm/drop_box/upload',
                 resume: true,
-                chunkSize: 1000000,
+                chunkSize: chunkSize,
                 autoRetry: true,
                 limit: 10,
                 retryDelays: [1000, 3000, 5000, 8000]

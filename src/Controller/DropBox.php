@@ -8,6 +8,7 @@ use Concrete\Core\Entity\File\File;
 use Concrete\Core\Entity\File\Version;
 use Concrete\Core\Entity\User\User as UserEntity;
 use Concrete\Core\Error\ErrorList\ErrorList;
+use Concrete\Core\Error\UserMessageException;
 use Concrete\Core\File\Import\FileImporter;
 use Concrete\Core\File\Import\ImportException;
 use Concrete\Core\File\StorageLocation\StorageLocationFactory;
@@ -30,6 +31,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use TusPhp\Events\TusEvent;
+use TusPhp\Events\UploadComplete;
+use TusPhp\Events\UploadCreated;
+use TusPhp\Exception\FileException;
 use TusPhp\Tus\Server;
 use DateTime;
 
@@ -67,8 +71,31 @@ class DropBox extends AbstractController
         $this->logger = $this->loggerFactory->createLogger(Channels::CHANNEL_PACKAGES);
     }
 
+    public function onUploadCreated(UploadCreated $upload)
+    {
+        $permissionChecker = new Checker();
+        if (!$permissionChecker->canUploadFileToDropBox()) {
+            $this->error->add(t("You don't have the permission to upload files."));
+            return;
+        }
+
+        $filename = $upload->getFile()->getName();
+
+        $config = $this->app['config'];
+        $fileService = $this->app->make('helper/concrete/file');
+        $allowedFileTypes = $fileService
+            ->unSerializeUploadFileExtensions(mb_strtolower($config->get('concrete.upload.extensions')));
+        $deniedFileTypes = $fileService
+            ->unSerializeUploadFileExtensions(mb_strtolower($config->get('concrete.upload.extensions_denylist')));
+
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        if (in_array($extension, $deniedFileTypes) || !in_array($extension, $allowedFileTypes)) {
+            $this->error->add('File type not allowed.');
+        }
+    }
+
     /** @noinspection PhpUnused */
-    public function onUploadComplete(TusEvent $event)
+    public function onUploadComplete(UploadComplete $event)
     {
         // First, removed the cached file
         $this->server->getCache()->delete($event->getFile()->getKey());
@@ -258,18 +285,25 @@ class DropBox extends AbstractController
         /*
          * We need to hook into the upload event to import the file into the file manager.
          */
-
         $this->server->event()->addListener('tus-server.upload.complete', [$this, 'onUploadComplete']);
+        $this->server->event()->addListener('tus-server.upload.created', [$this, 'onUploadCreated']);
 
         /*
          * And finally we need to set the upload dir - that's it.
          */
-
-        $uploadDir = ini_get("upload_tmp_dir") ? ini_get("upload_tmp_dir") : sys_get_temp_dir();
+        $uploadDir = $_ENV['DROPBOX_TMP_DIR'] ?? (ini_get("upload_tmp_dir") ?: sys_get_temp_dir());
 
         $this->server->setUploadDir($uploadDir);
 
-        return $this->server->serve();
+        set_time_limit(0);
+        $response = $this->server->serve();
+
+        // Check for any errors added by event handlers
+        if ($this->error->has()) {
+            return new JsonResponse($this->error, JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        return $response;
     }
 }
 

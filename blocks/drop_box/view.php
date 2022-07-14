@@ -57,7 +57,8 @@ $dropBoxModalId = "drop-box-modal-" . $idHelper->getString("16");
         $(function () {
             $("#<?php echo $dropBoxId; ?>").dropBox(<?php /** @noinspection PhpComposerExtensionStubsInspection */echo json_encode([
                 "displayUrlToUploadedFile" => (int)$displayUrlToUploadedFile === 1,
-                "modalSelector" => "#" . $dropBoxModalId
+                "modalSelector" => "#" . $dropBoxModalId,
+                'chunkSize' => (int) ($_ENV['DROPBOX_CHUNK_SIZE'] ?? 1000000),
             ]); ?>);
         });
     })(jQuery);

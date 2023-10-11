@@ -305,7 +305,7 @@ class DropBox extends AbstractController
          * because all requests are already initialized.
          */
 
-        $_SERVER['REQUEST_URI'] = $path;
+        $_SERVER['REQUEST_URI'] = (string) $path;
 
         $this->server = new Server();
 

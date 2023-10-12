@@ -199,9 +199,6 @@ class DropBox extends AbstractController
                         unlink($eventFile->getFilePath());
                     }
 
-                    // Remove the cache now that the uploaded file is gone
-                    $this->server->getCache()->delete($eventFile->getKey());
-
                     // Update file size
                     $sizeSetter = new class extends Version
                     {

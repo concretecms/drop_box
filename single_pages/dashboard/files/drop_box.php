@@ -46,7 +46,7 @@ use Concrete\Core\Support\Facade\Url;
                                 disabled="disabled"
                                 data-search-checkbox-button="dropdown"
                                 class="btn btn-secondary dropdown-toggle dropdown-toggle-split"
-                                data-toggle="dropdown"
+                                data-bs-toggle="dropdown"
                                 data-reference="parent">
 
                             <span class="sr-only">
@@ -54,9 +54,7 @@ use Concrete\Core\Support\Facade\Url;
                             </span>
                         </button>
 
-                        <div data-search-menu="dropdown">
-                            <?php echo $resultsBulkMenu->getMenuElement(); ?>
-                        </div>
+                        <?php echo $resultsBulkMenu->getMenuElement(); ?>
                     </div>
                 </th>
 
@@ -110,7 +108,7 @@ use Concrete\Core\Support\Facade\Url;
                                 <button class="btn btn-icon"
                                         data-boundary="viewport"
                                         type="button"
-                                        data-toggle="dropdown"
+                                        data-bs-toggle="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false">
 
@@ -211,7 +209,7 @@ use Concrete\Core\Support\Facade\Url;
             <tr>
                 <th>
                     <div class="dropdown">
-                        <button class="btn btn-menu-launcher" disabled data-toggle="dropdown"><i
+                        <button class="btn btn-menu-launcher" disabled data-bs-toggle="dropdown"><i
                                     class="fa fa-chevron-down"></i></button>
                     </div>
                 </th>

@@ -8,6 +8,7 @@ use Concrete\Core\Entity\File\File;
 use Concrete\Core\Entity\File\Version;
 use Concrete\Core\Entity\User\User as UserEntity;
 use Concrete\Core\Error\ErrorList\ErrorList;
+use Concrete\Core\Error\UserMessageException;
 use Concrete\Core\File\Import\FileImporter;
 use Concrete\Core\File\Import\ImportException;
 use Concrete\Core\File\StorageLocation\StorageLocationFactory;
@@ -20,6 +21,7 @@ use Concrete\Core\Support\Facade\Url;
 use Concrete\Core\User\User;
 use Concrete5\DropBox\Entity\UploadedFile;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\FileNotFoundException;
@@ -30,6 +32,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use TusPhp\Events\TusEvent;
+use TusPhp\Events\UploadComplete;
+use TusPhp\Events\UploadCreated;
+use TusPhp\Exception\FileException;
 use TusPhp\Tus\Server;
 use DateTime;
 
@@ -67,16 +72,46 @@ class DropBox extends AbstractController
         $this->logger = $this->loggerFactory->createLogger(Channels::CHANNEL_PACKAGES);
     }
 
-    /** @noinspection PhpUnused */
-    public function onUploadComplete(TusEvent $event)
+    public function onUploadCreated(UploadCreated $upload)
     {
-        // First, removed the cached file
-        $this->server->getCache()->delete($event->getFile()->getKey());
+        // Make sure we have permission to upload
+        $permissionChecker = new Checker();
+        if (!$permissionChecker->canUploadFileToDropBox()) {
+            $this->error->add(t("You don't have the permission to upload files."));
+            return;
+        }
 
+        $filename = $upload->getFile()->getName();
+
+        // Validate the file type, make sure it's both in the allow list and not in the deny list
+        $config = $this->app['config'];
+        $fileService = $this->app->make('helper/concrete/file');
+        $allowedFileTypes = $fileService
+            ->unSerializeUploadFileExtensions(mb_strtolower($config->get('concrete.upload.extensions')));
+        $deniedFileTypes = $fileService
+            ->unSerializeUploadFileExtensions(mb_strtolower($config->get('concrete.upload.extensions_denylist')));
+
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        if (in_array($extension, $deniedFileTypes) || !in_array($extension, $allowedFileTypes)) {
+            $this->error->add('File type not allowed.');
+        }
+
+        // Make sure the file we're uploading to is empty
+        $filePath = $upload->getFile()->getFilePath();
+        if (file_exists($filePath)) {
+            file_put_contents($filePath, '');
+        }
+    }
+
+    /** @noinspection PhpUnused */
+    public function onUploadComplete(UploadComplete $event)
+    {
         $fileVersion = null;
 
+        $eventFile = $event->getFile();
         try {
-            $fileVersion = $this->fileImporter->importLocalFile($event->getFile()->getFilePath(), $event->getFile()->getName());
+            $tmpFile = tempnam('/tmp', $eventFile->getName());
+            $fileVersion = $this->fileImporter->importLocalFile($tmpFile, $eventFile->getName());
         } catch (ImportException $e) {
             $this->error->add($e);
         }
@@ -118,7 +153,7 @@ class DropBox extends AbstractController
                 }
 
                 try {
-                    $primaryIdentifier = $event->getFile()->getKey();
+                    $primaryIdentifier = $eventFile->getKey();
                     $fileIdentifier = Uuid::uuid4()->toString();
                 } catch (Exception $e) {
                     $this->error->add(t("There was an error while generating the unique identifiers."));
@@ -129,33 +164,56 @@ class DropBox extends AbstractController
                  * with a new uploaded file entry.
                  */
 
-                $uploadedFileEntry = new UploadedFile();
+                if (!$this->error->has()) {
+                    $uploadedFileEntry = new UploadedFile();
 
-                $uploadedFileEntry->setCreatedAt(new DateTime());
-                $uploadedFileEntry->setFile($file);
-                $uploadedFileEntry->setPrimaryIdentifier($primaryIdentifier);
-                $uploadedFileEntry->setFileIdentifier($fileIdentifier);
-                /** @noinspection PhpParamsInspection */
-                $uploadedFileEntry->setOwner($owner);
+                    $uploadedFileEntry->setCreatedAt(new DateTime());
+                    $uploadedFileEntry->setFile($file);
+                    $uploadedFileEntry->setPrimaryIdentifier($primaryIdentifier);
+                    $uploadedFileEntry->setFileIdentifier($fileIdentifier);
+                    /** @noinspection PhpParamsInspection */
+                    $uploadedFileEntry->setOwner($owner);
 
-                $this->entityManager->persist($uploadedFileEntry);
-                $this->entityManager->flush();
+                    $this->entityManager->persist($uploadedFileEntry);
+                    $this->entityManager->flush();
+
+                    // Move the uploaded file into its final place
+                    $storageLocation = $file->getFileStorageLocationObject();
+                    $fileSystem = $storageLocation->getFileSystemObject();
+                    $adapter = $fileSystem->getAdapter();
+
+                    // If we have a local file we can just move the file, otherwise we have to import it.
+                    if ($adapter instanceof Local) {
+                        $cf = $this->app->make('helper/concrete/file');
+                        $filePath = $cf->prefix($fileVersion->getPrefix(), $fileVersion->getFileName());
+                        $realPath = $adapter->applyPathPrefix($filePath);
+
+                        // Move the uploaded file on top of the imported dummy file
+                        rename($eventFile->getFilePath(), $realPath);
+                    } else {
+                        $stream = fopen($eventFile->getFilePath(), 'rb+');
+                        // Write the data from the upload file over the dummy imported file. This can be very slow due
+                        // to bandwidth limitations
+                        $fileSystem->writeStream($fileVersion->getRelativePath(), $stream);
+                        fclose($stream);
+                        unlink($eventFile->getFilePath());
+                    }
+
+                    // Update file size
+                    $sizeSetter = new class extends Version
+                    {
+                        public function setFileSize(Version $fileVersion, int $size)
+                        {
+                            $fileVersion->fvSize = $size;
+                        }
+                    };
+                    $sizeSetter->setFileSize($fileVersion, $eventFile->getFileSize());
+                    $this->entityManager->flush();
+                }
             }
 
         } else {
             $this->error->add(t("There was an error while uploading the file."));
-        }
-
-        /*
-         * Remove the temp file
-         */
-
-        $fs = new Filesystem(new Local(dirname($event->getFile()->getFilePath())));
-
-        try {
-            $fs->delete(basename($event->getFile()->getFilePath()));
-        } catch (FileNotFoundException $e) {
-            $this->error->add(t("There was an error while removing the temp file."));
         }
 
         if ($this->error->has()) {
@@ -244,7 +302,7 @@ class DropBox extends AbstractController
          * because all requests are already initialized.
          */
 
-        $_SERVER['REQUEST_URI'] = $path;
+        $_SERVER['REQUEST_URI'] = (string) $path;
 
         $this->server = new Server();
 
@@ -258,18 +316,25 @@ class DropBox extends AbstractController
         /*
          * We need to hook into the upload event to import the file into the file manager.
          */
-
         $this->server->event()->addListener('tus-server.upload.complete', [$this, 'onUploadComplete']);
+        $this->server->event()->addListener('tus-server.upload.created', [$this, 'onUploadCreated']);
 
         /*
          * And finally we need to set the upload dir - that's it.
          */
-
-        $uploadDir = ini_get("upload_tmp_dir") ? ini_get("upload_tmp_dir") : sys_get_temp_dir();
+        $uploadDir = $_ENV['DROPBOX_TMP_DIR'] ?? (ini_get("upload_tmp_dir") ?: sys_get_temp_dir());
 
         $this->server->setUploadDir($uploadDir);
 
-        return $this->server->serve();
+        set_time_limit(0);
+        $response = $this->server->serve();
+
+        // Check for any errors added by event handlers
+        if ($this->error->has()) {
+            return new JsonResponse($this->error, JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        return $response;
     }
 }
 

@@ -19,12 +19,12 @@ $form = $app->make(Form::class);
 
 <div class="form-group">
     <?php echo $form->label("uploadCompleteResponse", t("Upload Complete Response")); ?>
-    <?php echo $editor->outputStandardEditor("uploadCompleteResponse", $uploadCompleteResponse); ?>
+    <?php echo $editor->outputStandardEditor("uploadCompleteResponse", $uploadCompleteResponse ?? ''); ?>
 </div>
 
 <div class="form-group">
     <div class="form-check">
-        <?php echo $form->checkbox("displayUrlToUploadedFile", 1, ((int)$displayUrlToUploadedFile === 1), ["class" => "form-check-input"]); ?>
+        <?php echo $form->checkbox("displayUrlToUploadedFile", 1, ((int)($displayUrlToUploadedFile ?? 0) === 1), ["class" => "form-check-input"]); ?>
         <?php echo $form->label("displayUrlToUploadedFile", t("Display URL to Uploaded File"), ["class" => "form-check-label"]); ?>
     </div>
 </div>
